@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>APNs .p8 Uploader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="./main.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+<div class="max-w-2xl mx-auto p-6">
+    <main class="space-y-10">
+        <form id="uploadForm" class="bg-white shadow-sm rounded-xl border border-slate-200 p-6">
+            <div class="space-y-10">
+                <header class="mb-6">
+                    <h1 class="text-2xl font-semibold tracking-tight">APNs .p8 key registration</h1>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Team ID -->
+                    <div>
+                        <label for="teamId" class="block text-sm font-medium text-slate-700">Team ID</label>
+                        <input id="teamId" name="teamId" type="text"
+                               inputmode="latin"
+                               autocomplete="off"
+                               placeholder="ABCDE12345"
+                               pattern="[A-Z0-9]{10}"
+                               title="10 uppercase letters/digits"
+                               class="mt-1 w-full rounded-lg border-slate-300 focus-ring p-2.5 uppercase"
+                               required />
+                        <p class="text-xs text-slate-500 mt-1">10-char Apple Team ID (uppercase A-Z, 0-9).</p>
+                    </div>
+
+                    <!-- Bundle ID -->
+                    <div>
+                        <label for="bundleId" class="block text-sm font-medium text-slate-700">Bundle ID (Topic)</label>
+                        <input id="bundleId" name="bundleId" type="text"
+                               autocomplete="off"
+                               placeholder="com.example.app"
+                               class="mt-1 w-full rounded-lg border-slate-300 focus-ring p-2.5"
+                               required />
+                    </div>
+                </div>
+
+                <!-- File -->
+                <div>
+                    <label for="upload" class="block text-sm font-medium text-slate-700">Auth key (.p8)</label>
+                    <input id="upload" name="upload" type="file" accept=".p8"
+                           class="mt-1 w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:text-white file:px-4 file:py-2 file:hover:bg-slate-800 file:cursor-pointer"
+                           required />
+                    <p class="text-xs text-slate-500 mt-1">Use the file named like <code class="mono">AuthKey_XXXXXXXX.p8</code>.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Registry token -->
+                    <div>
+                        <label for="registryToken" class="block text-sm font-medium text-slate-700">Registry Token</label>
+                        <input id="registryToken" name="registryToken" type="password"
+                               placeholder="%%%REGISTRY_TOKEN_PLACEHOLDER%%%"
+                               disabled="%%%REGISTRY_TOKEN_DISABLED%%%"
+                               inputmode="latin"
+                               autocomplete="off"
+                               class="mt-1 w-full rounded-lg border-slate-300 focus-ring p-2.5"
+                               required />
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3">
+                    <button id="submitBtn" type="submit"
+                            class="inline-flex items-center gap-2 rounded-lg bg-slate-900 text-white px-4 py-2.5 hover:bg-slate-800 focus-ring disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg id="spinner" class="hidden animate-spin h-4 w-4" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4A4 4 0 0 0 8 12H4z"></path>
+                        </svg>
+                        <span>Upload & Validate</span>
+                    </button>
+
+                    <button type="button" id="resetBtn"
+                            class="rounded-lg border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-50 focus-ring">
+                        Reset
+                    </button>
+                </div>
+            </div>
+            <!-- Status -->
+            <div id="status" class="hidden rounded-lg border p-3 mt-10 text-sm"></div>
+        </form>
+
+        <div class="bg-white shadow-sm rounded-xl border border-slate-200 p-6">
+            <header class="mb-6">
+                <h4 class="text-2xl font-semibold tracking-tight">Creating a key</h4>
+            </header>
+            <ul class="list list-disc list-inside">
+                <li>Go to <a class="text-blue-500" target="_blank" href="https://developer.apple.com/account/resources/authkeys/list">https://developer.apple.com/account/resources/authkeys/list</a></li>
+                <li>Create a new key ("+" button)</li>
+                <li>Specify a name (for example, 'iAPS Notifications')</li>
+                <li>Enable "Apple Push Notifications service (APNs)"</li>
+                <li>Click "Configure" for "Apple Push Notifications service (APNs)"</li>
+                <li>Select the environment
+                    <ul class="list list-disc list-inside ml-6">
+                        <li>"Sandbox" for xcode/debug builds</li>
+                        <li>"Production" for TestFlight builds</li>
+                        <li>"Sandbox & Production" will work for both cases</li>
+                    </ul>
+                </li>
+                <li>Save the configuration</li>
+                <li>Click "Continue"</li>
+                <li>Click "Register"</li>
+                <li>Click "Download" and save the .p8 file</li>
+            </ul>
+        </div>
+
+        <div class="bg-white shadow-sm rounded-xl border border-slate-200 p-6">
+            <div>
+                In order to unregister your key from this server, submit a form at <a class="text-blue-500" href="/key-removal">/key-removal</a>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const teamId          = $("teamId");
+    const bundleId        = $("bundleId");
+    const registryToken   = $("registryToken");
+    const upload          = $("upload");
+    const form            = $("uploadForm");
+    const submitBtn       = $("submitBtn");
+    const spinner         = $("spinner");
+    const statusBox       = $("status");
+    const resetBtn        = $("resetBtn");
+
+    // Restore last-used values
+    try {
+      const saved = JSON.parse(localStorage.getItem("p8-uploader") || "{}");
+      if (saved.teamId) teamId.value = saved.teamId;
+      if (saved.bundleId) bundleId.value = saved.bundleId;
+    } catch {}
+
+    function savePrefs() {
+      localStorage.setItem("p8-uploader", JSON.stringify({
+        teamId: teamId.value.trim().toUpperCase(),
+        bundleId: bundleId.value.trim(),
+      }));
+    }
+
+    function setBusy(busy) {
+      submitBtn.disabled = busy;
+      spinner.classList.toggle("hidden", !busy);
+    }
+
+    function setStatus(ok, text) {
+      statusBox.classList.remove("hidden");
+      statusBox.classList.toggle("border-green-300", ok);
+      statusBox.classList.toggle("bg-green-50", ok);
+      statusBox.classList.toggle("text-green-800", ok);
+      statusBox.classList.toggle("border-red-300", !ok);
+      statusBox.classList.toggle("bg-red-50", !ok);
+      statusBox.classList.toggle("text-red-800", !ok);
+      statusBox.textContent = text;
+    }
+
+    // Uppercase teamId as you type
+    teamId.addEventListener("input", () => {
+      teamId.value = teamId.value.toUpperCase();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      form.reset();
+      statusBox.classList.add("hidden");
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusBox.classList.add("hidden");
+
+      // Basic validation
+      const file = upload.files[0];
+      if (!file) {
+        setStatus(false, "Please choose a .p8 file to upload.");
+        return;
+      }
+      if (!teamId.reportValidity() || !bundleId.reportValidity() ) {
+        return;
+      }
+
+      setBusy(true);
+      savePrefs();
+
+      try {
+        const fd = new FormData();
+        fd.append("teamId", teamId.value.trim().toUpperCase());
+        fd.append("bundleId", bundleId.value.trim());
+        fd.append("registryToken", registryToken.value.trim());
+        fd.append("upload", file, file.name);
+
+        const res = await fetch("/api/v1/p8/register", {
+          method: "POST",
+          body: fd,
+          // Let the browser set Content-Type with boundary
+          // mode/credentials as default; adjust if your API needs auth
+        });
+
+        const text = await res.json();
+        if (res.ok) {
+          setStatus(true, text || "OK");
+        } else {
+          setStatus(false, text || `HTTP ${res.status}`);
+        }
+      } catch (err) {
+        setStatus(false, "Network error: " + (err?.message || String(err)));
+      } finally {
+        setBusy(false);
+      }
+    });
+  })();
+</script>
+</body>
+</html>
