@@ -58,13 +58,16 @@ Using the hosting platform of your choice, start a Docker container using the im
 For simple file-system storage:
 * `NSAPNS_STORAGE_PATH` - path to a directory to be used for persistence 
 
-For S3-like object storage:
+For s3-like object storage:
 * `NSAPNS_S3_REGION` - s3 region
 * `NSAPNS_S3_ENDPOINT` - s3 endpoint (optional)
 * `NSAPNS_S3_BUCKET` - bucket name
-* `NSAPNS_S3_ROOT_PATH` - path within the bucket 
-* `NSAPNS_S3_ACCESS_KEY` - s3 access key id
-* `NSAPNS_S3_SECRET_KEY` - secret access key
+* `NSAPNS_S3_FORCE_PATH_STYLE` (`true` / `false`) - force path style option for s3 client (optional) 
+* `NSAPNS_S3_ROOT_PATH` - path within the bucket
+* authorization:
+  * `NSAPNS_S3_ACCESS_KEY` - s3 access key id
+  * `NSAPNS_S3_SECRET_KEY` - secret access key
+  * if both or any of the authorization variables are missing, the default aws credentials provider will be used.
 
 ### Developer private key 
 

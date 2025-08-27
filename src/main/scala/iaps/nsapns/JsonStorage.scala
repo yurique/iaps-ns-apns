@@ -11,7 +11,7 @@ import io.circe.Encoder
 import io.circe.syntax.*
 import io.circe.parser.*
 import org.typelevel.log4cats.Logger
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
@@ -120,15 +120,12 @@ object JsonStorage {
         .builder()
         .pipe { b => storage.endpoint.map(new URI(_)).fold(b)(b.endpointOverride) }
         .region(Region.of(storage.region))
-        .forcePathStyle(false)
+        .pipe { b => storage.forcePathStyle.fold(b)(force => b.forcePathStyle(force)) }
         .credentialsProvider(
-          StaticCredentialsProvider.create(
-            AwsBasicCredentials
-              .builder()
-              .accessKeyId(storage.accessKey)
-              .secretAccessKey(storage.secretKey)
-              .build()
-          )
+          storage.credentials match {
+            case Some(credentials) => StaticCredentialsProvider.create(credentials)
+            case None              => DefaultCredentialsProvider.builder().build()
+          }
         )
         .build()
 

@@ -5,6 +5,7 @@ import fs2.io.file.Path
 import io.circe.Decoder
 import io.circe.Encoder
 import org.http4s.Status
+import software.amazon.awssdk.auth.credentials.AwsCredentials
 
 given Encoder[org.http4s.Uri] = Encoder.encodeString.contramap(_.renderString)
 given Decoder[org.http4s.Uri] = Decoder.decodeString.emap(s => org.http4s.Uri.fromString(s).leftMap(_.sanitized))
@@ -16,9 +17,9 @@ enum StorageConfig {
     region: String,
     endpoint: Option[String],
     bucket: String,
+    forcePathStyle: Option[Boolean],
     path: String,
-    accessKey: String,
-    secretKey: String
+    credentials: Option[AwsCredentials],
   )
 
 }

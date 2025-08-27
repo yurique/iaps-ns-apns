@@ -31,6 +31,7 @@
 NSAPNS_S3_REGION=us-east-1
 NSAPNS_S3_ENDPOINT=https://fra1.digitaloceanspaces.com # replace with the endpoint value for your bucket name, remove the bucket name at the beginning
 NSAPNS_S3_BUCKET=my-bucket-name # replace with your bucket name
+NSAPNS_S3_FORCE_PATH_STYLE=true
 NSAPNS_S3_ROOT_PATH=storage # arbitrary value, "storage"
 NSAPNS_S3_ACCESS_KEY=your access key ID here
 NSAPNS_S3_SECRET_KEY=your secret access key here
