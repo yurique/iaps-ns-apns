@@ -1,11 +1,3 @@
-### frontend build
-
-```shell
-npm install tailwindcss @tailwindcss/cli
-# to update css
-./prepare-frontend.sh
-```
-
 ### backend 
 
 (sbt build tool is needed: https://www.scala-sbt.org/download/)
@@ -74,4 +66,11 @@ For s3-like object storage:
 
 Once the server is running, go to https://your-server-address/key-registration (or http://localhost:22626 when running locally) to upload your Apple Developer private key for your Bundle ID.
 
+### frontend build
+
+```shell
+npm install tailwindcss @tailwindcss/cli
+# to update css
+./prepare-frontend.sh
+```
 
