@@ -14,11 +14,12 @@ npm install tailwindcss @tailwindcss/cli
 
 create/edit the `.env` file in the repository root, put the environment variables as needed (described in the `environment variables` section below):
 ```dotenv
-NSAPNS_STORAGE_PATH=/Users/yurique/git/GitHub/artificial-pancreas/ns-apns/.storage
+NSAPNS_STORAGE_PATH=/path/to/storage-driectory
 # OR (example for DigitalOcean spaces)
 NSAPNS_S3_REGION=us-east-1
 NSAPNS_S3_ENDPOINT=https://fra1.digitaloceanS3.com
 NSAPNS_S3_BUCKET=my-bucket
+NSAPNS_S3_FORCE_PATH_STYLE=true
 NSAPNS_S3_ROOT_PATH=storage
 NSAPNS_S3_ACCESS_KEY=my-access-key-id
 NSAPNS_S3_SECRET_KEY=my-secret-access-key
